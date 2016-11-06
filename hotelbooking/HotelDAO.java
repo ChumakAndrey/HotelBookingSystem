@@ -1,8 +1,6 @@
 package hotelbooking;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static hotelbooking.Utils.printMessage;
@@ -83,14 +81,14 @@ public class HotelDAO extends AbstractDAOImpl<Hotel> {
         Room room60 = new Room(60, 3, 550.0);
         List<Room> roomList6 = Arrays.asList(room51, room52, room53, room54, room55, room56, room57, room58, room59, room60);
 
-        this.save(new Hotel(1, "Radisson Hotel", "Kiev", roomList1));
-        this.save(new Hotel(2, "Hyatt Regency Hotel", "Kiev", roomList2));
+        this.save(new Hotel("Radisson Hotel", "Kiev", roomList1));
+        this.save(new Hotel("Hyatt Regency Hotel", "Kiev", roomList2));
 
-        this.save(new Hotel(3, "Leopolis Hotel", "Lvov", roomList3));
-        this.save(new Hotel(4, "Nobilis Hotel", "Lvov", roomList4));
+        this.save(new Hotel("Leopolis Hotel", "Lvov", roomList3));
+        this.save(new Hotel("Nobilis Hotel", "Lvov", roomList4));
 
-        this.save(new Hotel(5, "Duke Hotel Odessa", "Odessa", roomList5));
-        this.save(new Hotel(6, "Bristol Hotel", "Odessa", roomList6));
+        this.save(new Hotel( "Duke Hotel Odessa", "Odessa", roomList5));
+        this.save(new Hotel("Bristol Hotel", "Odessa", roomList6));
     }
 
     public List<Hotel> getByCity(String city) {
@@ -157,26 +155,86 @@ public class HotelDAO extends AbstractDAOImpl<Hotel> {
         return false;
     }
 
-    public List<Hotel> getRooms(String city, String hotelName, double price, int persons) {
+   /* public List<Hotel> getRooms(String city, String hotelName, double price, int persons) {
 
         List<Hotel> resultHotelList = new ArrayList<>();
-        List<Room> roomList = new ArrayList<>();
+
         //Select hotels with given city and hotel name. If city or hotel name is null filter returns all hotels.
         // If only one parameter given another parameter is ignored by true value in ternary operator
-        List<Hotel> hotelList = getAll().stream()
-                .filter(hotel -> ((city != null && city.length() > 2) ? hotel.getCity().toLowerCase().contains(city.toLowerCase()) : true) &&
-                        ((hotelName != null && hotelName.length() > 2) ? hotel.getName().toLowerCase().contains(hotelName.toLowerCase()) : true))
-                .collect(Collectors.toList());
 
-        for (Hotel hotel : hotelList){
+        List<Hotel> hotelList = getAll().stream()
+                    .filter(hotel -> hotel.getCity().toLowerCase().contains(city.toLowerCase()))
+                    .filter(hotel -> hotel.getName().toLowerCase().contains(hotelName.toLowerCase()))
+                    .collect(Collectors.toList());
+
+        for (Hotel hotel : hotelList) {
             List<Room> tempRooms = hotel.getHotelRooms().stream()
                     .filter(room -> ((persons > 0 ? room.getPersons() == persons : true) &&
                             (price > 0 ? room.getPrice() == price : true)))
                     .collect(Collectors.toList());
-            roomList.addAll(tempRooms);
-            resultHotelList.add(new Hotel(hotel.getId(), hotel.getName(), hotel.getCity(), tempRooms));
         }
+
+        resultHotelList.add(new Hotel(hotel.getName(), hotel.getCity(), tempRooms));
+
         return resultHotelList;
+    }*/
+
+    private List<Hotel> getHotels(String city){
+        List<Hotel> resultHotelList = getAll().stream().filter(hotel -> hotel.getCity().toLowerCase().contains(city.toLowerCase()))
+                .collect(Collectors.toList());
+        return resultHotelList;
+    }
+
+    private List<Hotel> getHotels(String city, String hotelName) {
+        List<Hotel> resultHotelList = getAll().stream().filter(hotel -> hotel.getCity().toLowerCase().contains(city.toLowerCase()))
+                .filter(hotel -> hotel.getName().toLowerCase().contains(hotelName.toLowerCase()))
+                .collect(Collectors.toList());
+        return resultHotelList;
+    }
+
+
+    public Map<Hotel, List<Room>> getRooms(String city, String hotelName, double price, int persons) {
+
+        Map<Hotel, List<Room>> resultHotelMap = new HashMap<>();
+
+        for (Hotel hotel : getHotels(city, hotelName)) {
+            List<Room> rooms = hotel.getHotelRooms().stream()
+                    .sorted((room1, room2) -> (Double.compare(room1.getPrice(), room2.getPrice())))
+                    .filter(room -> (room.getPersons() == persons))
+                    .filter(room -> (room.getPrice() <= price))
+                    .collect(Collectors.toList());
+            resultHotelMap.put(hotel, rooms);
+        }
+        return resultHotelMap;
+    }
+
+    public Map<Hotel, List<Room>> getRooms(String city, double price, int persons) {
+
+        Map<Hotel, List<Room>> resultHotelMap = new HashMap<>();
+
+        for (Hotel hotel : getHotels(city)) {
+            List<Room> rooms = hotel.getHotelRooms().stream()
+                    .sorted((room1, room2) -> (Double.compare(room1.getPrice(), room2.getPrice())))
+                    .filter(room -> (room.getPersons() == persons))
+                    .filter(room -> (room.getPrice() == price))
+                    .collect(Collectors.toList());
+            resultHotelMap.put(hotel, rooms);
+        }
+        return resultHotelMap;
+    }
+
+    public Map<Hotel, List<Room>> getRooms(String city, int persons) {
+
+        Map<Hotel, List<Room>> resultHotelMap = new HashMap<>();
+
+        for (Hotel hotel : getHotels(city)) {
+            List<Room> rooms = hotel.getHotelRooms().stream()
+                    .sorted((room1, room2) -> (Double.compare(room1.getPrice(), room2.getPrice())))
+                    .filter(room -> (room.getPersons() == persons))
+                    .collect(Collectors.toList());
+            resultHotelMap.put(hotel, rooms);
+        }
+        return resultHotelMap;
     }
 
     @Override

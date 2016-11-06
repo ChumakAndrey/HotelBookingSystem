@@ -4,16 +4,18 @@ import java.util.List;
 
 public class Hotel implements HasGetIdMethod {
 
+    private static long forHotelId = 1;
     private long hotelId;
     private String hotelName;
     private String hotelCity;
     private List<Room> hotelRooms;
 
-    public Hotel(long hotelId, String hotelName, String hotelCity, List<Room> hotelRooms) {
-        this.hotelId = hotelId;
+    public Hotel(String hotelName, String hotelCity, List<Room> hotelRooms) {
+        hotelId += forHotelId;
         this.hotelName = hotelName;
         this.hotelCity = hotelCity;
         this.hotelRooms = hotelRooms;
+        forHotelId++;
     }
 
     @Override

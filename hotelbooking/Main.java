@@ -62,7 +62,7 @@ public class Main {
         //controller.findHotelByName("Nobilis").forEach(System.out::println);
 
 
-        Map<String, String> map = new HashMap<>();
+        /*Map<String, String> map = new HashMap<>();
         map.put("persons", "2");
         map.put("price", "300");
         map.put("city", "Kiev");
@@ -71,7 +71,20 @@ public class Main {
             controller.findRoom(map).forEach(System.out::print);
         } catch (NullPointerException e) {
             printMessage("Try/Catch in main() method from Main class: NullPointerException! There are no registered users or current user is not set so findRoom() method returns null!");
-        }
+        }*/
+
+        HotelDAO hotelDAO = new HotelDAO();
+        System.out.println();
+        System.out.println("getRooms");
+        System.out.println(hotelDAO.getRooms("Kiev", "Radisson", 300, 2));
+        System.out.println();
+        System.out.println("getRooms");
+        System.out.println(hotelDAO.getRooms("Kiev", 300, 2));
+        System.out.println();
+        System.out.println("getRooms");
+        System.out.println(hotelDAO.getRooms("Odessa",3));
+
+
 
         //controller.getAllHotels().forEach(System.out::println);
 
